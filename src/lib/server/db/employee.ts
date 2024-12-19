@@ -1,7 +1,7 @@
 import { or, eq, sql, and } from 'drizzle-orm';
 import { employee, employeeEntry, employeeExit } from './schema/employee';
 import { StateInside, StateOutside, type State } from '$lib/types/state';
-import { fuzzyConcatSearchFilters, fuzzySearchFilters } from './fuzzysearch';
+import { fuzzySearchFilters } from './fuzzysearch';
 import { isInside } from '../isInside';
 import { DB as db } from './connect';
 import { capitalizeString, sanitizeString } from '$lib/utils/sanitize';
@@ -70,11 +70,11 @@ export async function getEmployees(
 				or(
 					...(nonEmptySearchQuery
 						? [
-								...fuzzySearchFilters(employee.email, nonEmptySearchQuery, 1, true),
-								...fuzzySearchFilters(employee.fname, nonEmptySearchQuery, 2),
-								...fuzzySearchFilters(employee.lname, nonEmptySearchQuery, 2),
-								...fuzzyConcatSearchFilters(employee.fname, employee.lname, nonEmptySearchQuery, 3),
-								...fuzzyConcatSearchFilters(employee.lname, employee.fname, nonEmptySearchQuery, 3)
+								...fuzzySearchFilters([employee.email], nonEmptySearchQuery, { substr: true }),
+								...fuzzySearchFilters([employee.fname], nonEmptySearchQuery, { distance: 2 }),
+								...fuzzySearchFilters([employee.lname], nonEmptySearchQuery, { distance: 2 }),
+								...fuzzySearchFilters([employee.fname, employee.lname], nonEmptySearchQuery, { distance: 3 }),
+								...fuzzySearchFilters([employee.lname, employee.fname], nonEmptySearchQuery, { distance: 3 })
 							]
 						: [])
 				)

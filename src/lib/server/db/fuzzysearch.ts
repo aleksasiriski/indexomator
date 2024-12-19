@@ -1,13 +1,17 @@
 import { sql, ilike, type Column, type SQL } from 'drizzle-orm';
 
+type FuzzySearchFiltersOptions = {
+	distance?: number;
+	substr?: boolean;
+};
+
 export function fuzzySearchFilters(
-	dbField: Column,
+	dbFields: Column[],
 	searchQuery: string,
-	distance: number,
-	substr: boolean = false
+	opts: FuzzySearchFiltersOptions = {}
 ): SQL[] {
-	// Assert dbField is valid
-	if (dbField === null || dbField === undefined) {
+	// Assert dbFields are valid
+	if (dbFields === null || dbFields === undefined || dbFields.length === 0) {
 		throw new Error('Invalid dbField');
 	}
 
@@ -16,57 +20,15 @@ export function fuzzySearchFilters(
 		throw new Error('Invalid searchQuery');
 	}
 
-	// Assert distance is valid
-	if (distance === null || distance === undefined) {
-		throw new Error('Invalid distance');
-	}
+	const concatQuery = dbFields
+		.map((field) => sql`${field}`)
+		.reduce((prev, curr) => sql`${prev} || ' ' || ${curr}`);
 
-	// Assert substr is valid
-	if (substr === null || substr === undefined) {
-		throw new Error('Invalid substr');
-	}
+	// @ts-expect-error because there is no typedef for sql as first param in ilike function
+	const ilikeFilter = [ilike(concatQuery, `${opts.substr ? '%' : ''}${searchQuery}%`)];
+	const levenshteinFilter = opts.distance
+		? [sql`LEVENSHTEIN(LOWER(${concatQuery}), ${searchQuery}) <= ${opts.distance}`]
+		: [];
 
-	return [
-		sql`LEVENSHTEIN(LOWER(${dbField}), ${searchQuery}) <= ${distance}`,
-		ilike(dbField, `${substr ? '%' : ''}${searchQuery}%`)
-	];
-}
-
-export function fuzzyConcatSearchFilters(
-	dbField1: Column,
-	dbField2: Column,
-	searchQuery: string,
-	distance: number,
-	substr: boolean = false
-): SQL[] {
-	// Assert dbField1 is valid
-	if (dbField1 === null || dbField1 === undefined) {
-		throw new Error('Invalid dbField1');
-	}
-
-	// Assert dbField2 is valid
-	if (dbField2 === null || dbField2 === undefined) {
-		throw new Error('Invalid dbField2');
-	}
-
-	// Assert searchQuery is valid
-	if (searchQuery === null || searchQuery === undefined || searchQuery === '') {
-		throw new Error('Invalid searchQuery');
-	}
-
-	// Assert distance is valid
-	if (distance === null || distance === undefined) {
-		throw new Error('Invalid distance');
-	}
-
-	// Assert substr is valid
-	if (substr === null || substr === undefined) {
-		throw new Error('Invalid substr');
-	}
-
-	return [
-		sql`LEVENSHTEIN(LOWER(${dbField1}) || ' ' || LOWER(${dbField2}), ${searchQuery}) <= ${distance}`,
-		// @ts-expect-error because there is no typedef for sql as first param in ilike function
-		ilike(sql`${dbField1} || ' ' || ${dbField2}`, `${substr ? '%' : ''}${searchQuery}%`)
-	];
+	return [...ilikeFilter, ...levenshteinFilter];
 }
