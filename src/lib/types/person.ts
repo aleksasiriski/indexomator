@@ -1,13 +1,15 @@
 import type { State } from './state';
 
-export type PersonType = 'Student' | 'Employee';
-export const Student: PersonType = 'Student';
+export type PersonType = 'Student' | 'Employee' | 'Guest';
 export const Employee: PersonType = 'Employee';
+export const Guest: PersonType = 'Guest';
+export const Student: PersonType = 'Student';
 
 export function isPersonType(s: string): s is PersonType {
 	switch (s) {
-		case Student:
 		case Employee:
+		case Guest:
+		case Student:
 			return true;
 		default:
 			return false;

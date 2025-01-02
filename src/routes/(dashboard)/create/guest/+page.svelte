@@ -30,9 +30,9 @@
 <form method="POST" class="flex h-[90dvh] w-full items-center justify-center px-4" use:enhance>
 	<Card.Root class="mx-auto w-full max-w-sm">
 		<Card.Header>
-			<Card.Title class="text-2xl">Create student</Card.Title>
+			<Card.Title class="text-2xl">Create guest</Card.Title>
 			<Card.Description>
-				Create a student who wants to enter the building for the first time.
+				Create a guest who wants to enter the building for the first time.
 			</Card.Description>
 		</Card.Header>
 		<Card.Content class="grid gap-4">
@@ -57,7 +57,7 @@
 			<Form.Field {form} name="identifier">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Index</Form.Label>
+						<Form.Label>Index / Email / Last 4 digits from ID</Form.Label>
 						<Input {...props} bind:value={$formData.identifier} />
 					{/snippet}
 				</Form.Control>
@@ -69,7 +69,7 @@
 						<Form.Label>Department</Form.Label>
 						<Select.Root type="single" bind:value={$formData.department} name={props.name}>
 							<Select.Trigger {...props}>
-								{$formData.department ?? 'Select the department for the student'}
+								{$formData.department ?? 'Select the department for the guest'}
 							</Select.Trigger>
 							<Select.Content>
 								{#each data.departments as department (department.id)}
@@ -77,6 +77,15 @@
 								{/each}
 							</Select.Content>
 						</Select.Root>
+					{/snippet}
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+			<Form.Field {form} name="guarantorIdentifier">
+				<Form.Control>
+					{#snippet children({ props })}
+						<Form.Label>Guarantor's index / email / last 4 digits from ID</Form.Label>
+						<Input {...props} bind:value={$formData.guarantorIdentifier} />
 					{/snippet}
 				</Form.Control>
 				<Form.FieldErrors />

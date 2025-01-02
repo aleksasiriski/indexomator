@@ -21,6 +21,8 @@
 					Create Student
 				{:else if $page.url.pathname === '/create/employee'}
 					Create Employee
+				{:else if $page.url.pathname === '/create/guest'}
+					Create Guest
 				{:else if $page.url.pathname === '/instructions'}
 					Instructions
 				{:else}

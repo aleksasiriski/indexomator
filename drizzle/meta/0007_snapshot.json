@@ -1,0 +1,411 @@
+{
+	"id": "bcf6fa39-7ebc-4761-bd35-47cb8debf6d6",
+	"prevId": "00e93b06-d2d6-4901-80b0-a270695dd02b",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.building": {
+			"name": "building",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"building_name_unique": {
+					"name": "building_name_unique",
+					"nullsNotDistinct": false,
+					"columns": ["name"]
+				}
+			}
+		},
+		"public.department": {
+			"name": "department",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"department_name_unique": {
+					"name": "department_name_unique",
+					"nullsNotDistinct": false,
+					"columns": ["name"]
+				}
+			}
+		},
+		"public.person": {
+			"name": "person",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"identifier": {
+					"name": "identifier",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"type": {
+					"name": "type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"fname": {
+					"name": "fname",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"lname": {
+					"name": "lname",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"department": {
+					"name": "department",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"guarantor_id": {
+					"name": "guarantor_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"person_department_department_name_fk": {
+					"name": "person_department_department_name_fk",
+					"tableFrom": "person",
+					"tableTo": "department",
+					"columnsFrom": ["department"],
+					"columnsTo": ["name"],
+					"onDelete": "restrict",
+					"onUpdate": "cascade"
+				},
+				"person_guarantor_id_person_id_fk": {
+					"name": "person_guarantor_id_person_id_fk",
+					"tableFrom": "person",
+					"tableTo": "person",
+					"columnsFrom": ["guarantor_id"],
+					"columnsTo": ["id"],
+					"onDelete": "restrict",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"person_identifier_unique": {
+					"name": "person_identifier_unique",
+					"nullsNotDistinct": false,
+					"columns": ["identifier"]
+				}
+			}
+		},
+		"public.person_entry": {
+			"name": "person_entry",
+			"schema": "",
+			"columns": {
+				"person_id": {
+					"name": "person_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"timestamp": {
+					"name": "timestamp",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"building": {
+					"name": "building",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"creator": {
+					"name": "creator",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"person_entry_person_id_person_id_fk": {
+					"name": "person_entry_person_id_person_id_fk",
+					"tableFrom": "person_entry",
+					"tableTo": "person",
+					"columnsFrom": ["person_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "cascade"
+				},
+				"person_entry_building_building_name_fk": {
+					"name": "person_entry_building_building_name_fk",
+					"tableFrom": "person_entry",
+					"tableTo": "building",
+					"columnsFrom": ["building"],
+					"columnsTo": ["name"],
+					"onDelete": "restrict",
+					"onUpdate": "cascade"
+				},
+				"person_entry_creator_user_username_fk": {
+					"name": "person_entry_creator_user_username_fk",
+					"tableFrom": "person_entry",
+					"tableTo": "user",
+					"columnsFrom": ["creator"],
+					"columnsTo": ["username"],
+					"onDelete": "no action",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {
+				"person_entry_person_id_timestamp_pk": {
+					"name": "person_entry_person_id_timestamp_pk",
+					"columns": ["person_id", "timestamp"]
+				}
+			},
+			"uniqueConstraints": {}
+		},
+		"public.person_exit": {
+			"name": "person_exit",
+			"schema": "",
+			"columns": {
+				"person_id": {
+					"name": "person_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"timestamp": {
+					"name": "timestamp",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"building": {
+					"name": "building",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"creator": {
+					"name": "creator",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"person_exit_person_id_person_id_fk": {
+					"name": "person_exit_person_id_person_id_fk",
+					"tableFrom": "person_exit",
+					"tableTo": "person",
+					"columnsFrom": ["person_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "cascade"
+				},
+				"person_exit_building_building_name_fk": {
+					"name": "person_exit_building_building_name_fk",
+					"tableFrom": "person_exit",
+					"tableTo": "building",
+					"columnsFrom": ["building"],
+					"columnsTo": ["name"],
+					"onDelete": "restrict",
+					"onUpdate": "cascade"
+				},
+				"person_exit_creator_user_username_fk": {
+					"name": "person_exit_creator_user_username_fk",
+					"tableFrom": "person_exit",
+					"tableTo": "user",
+					"columnsFrom": ["creator"],
+					"columnsTo": ["username"],
+					"onDelete": "no action",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {
+				"person_exit_person_id_timestamp_pk": {
+					"name": "person_exit_person_id_timestamp_pk",
+					"columns": ["person_id", "timestamp"]
+				}
+			},
+			"uniqueConstraints": {}
+		},
+		"public.session": {
+			"name": "session",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"building": {
+					"name": "building",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"timestamp": {
+					"name": "timestamp",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"session_user_id_user_id_fk": {
+					"name": "session_user_id_user_id_fk",
+					"tableFrom": "session",
+					"tableTo": "user",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"session_building_building_name_fk": {
+					"name": "session_building_building_name_fk",
+					"tableFrom": "session",
+					"tableTo": "building",
+					"columnsFrom": ["building"],
+					"columnsTo": ["name"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {}
+		},
+		"public.ratelimit": {
+			"name": "ratelimit",
+			"schema": "",
+			"columns": {
+				"user_id": {
+					"name": "user_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"timestamp": {
+					"name": "timestamp",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"lock": {
+					"name": "lock",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"ratelimit_user_id_user_id_fk": {
+					"name": "ratelimit_user_id_user_id_fk",
+					"tableFrom": "ratelimit",
+					"tableTo": "user",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {}
+		},
+		"public.user": {
+			"name": "user",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"username": {
+					"name": "username",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"password_hash": {
+					"name": "password_hash",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"user_username_unique": {
+					"name": "user_username_unique",
+					"nullsNotDistinct": false,
+					"columns": ["username"]
+				}
+			}
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
+}

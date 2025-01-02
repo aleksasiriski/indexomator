@@ -22,6 +22,7 @@ export async function getPersons(
 		fname: string;
 		lname: string;
 		department: string;
+		guarantorId: number | null;
 		building: string | null;
 		state: State;
 	}[]
@@ -59,6 +60,7 @@ export async function getPersons(
 							fname: person.fname,
 							lname: person.lname,
 							department: person.department,
+							guarantorId: person.guarantorId,
 							entryTimestamp: maxEntrySubquery.maxEntryTimestamp,
 							entryBuilding: personEntry.building,
 							exitTimestamp: max(personExit.timestamp),
@@ -112,6 +114,7 @@ export async function getPersons(
 							person.fname,
 							person.lname,
 							person.department,
+							person.guarantorId,
 							maxEntrySubquery.maxEntryTimestamp,
 							personEntry.building
 						)
@@ -130,6 +133,7 @@ export async function getPersons(
 							fname: person.fname,
 							lname: person.lname,
 							department: person.department,
+							guarantorId: person.guarantorId,
 							entryTimestamp: maxEntrySubquery.maxEntryTimestamp,
 							entryBuilding: personEntry.building,
 							exitTimestamp: max(personExit.timestamp)
@@ -151,6 +155,7 @@ export async function getPersons(
 							person.fname,
 							person.lname,
 							person.department,
+							person.guarantorId,
 							maxEntrySubquery.maxEntryTimestamp,
 							personEntry.building
 						)
@@ -158,16 +163,17 @@ export async function getPersons(
 						.limit(limit)
 						.offset(offset);
 
-		return persons.map((s) => {
+		return persons.map((p) => {
 			return {
-				id: s.id,
-				identifier: s.identifier,
-				type: s.type as PersonType,
-				fname: s.fname,
-				lname: s.lname,
-				department: s.department,
-				building: isInside(s.entryTimestamp, s.exitTimestamp) ? s.entryBuilding : null,
-				state: isInside(s.entryTimestamp, s.exitTimestamp) ? StateInside : StateOutside
+				id: p.id,
+				identifier: p.identifier,
+				type: p.type as PersonType,
+				fname: p.fname,
+				lname: p.lname,
+				department: p.department,
+				guarantorId: p.guarantorId,
+				building: isInside(p.entryTimestamp, p.exitTimestamp) ? p.entryBuilding : null,
+				state: isInside(p.entryTimestamp, p.exitTimestamp) ? StateInside : StateOutside
 			};
 		});
 	} catch (err: unknown) {
@@ -236,7 +242,8 @@ export async function createPerson(
 	lnameD: string,
 	department: string,
 	building: string,
-	creator: string
+	creator: string,
+	guarantorIdentifier?: string
 ): Promise<{
 	id: number;
 	identifier: string;
@@ -264,6 +271,8 @@ export async function createPerson(
 		department === null ||
 		department === undefined ||
 		department === '' ||
+		guarantorIdentifier === null ||
+		guarantorIdentifier === '' ||
 		building === null ||
 		building === undefined ||
 		building === '' ||
@@ -280,10 +289,20 @@ export async function createPerson(
 
 	try {
 		return await db.transaction(async (tx) => {
+			// Get the guarantor's ID
+			const [{ id: guarantorId }] = guarantorIdentifier
+				? await tx
+						.select({
+							id: person.id
+						})
+						.from(person)
+						.where(eq(person.identifier, guarantorIdentifier))
+				: [{ id: undefined }];
+
 			// Create the person
 			const [{ id }] = await tx
 				.insert(person)
-				.values({ identifier, type, fname, lname, department })
+				.values({ identifier, type, fname, lname, department, guarantorId })
 				.returning({ id: person.id });
 
 			// Create the person entry

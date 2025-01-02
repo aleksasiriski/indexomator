@@ -3,6 +3,7 @@
 	import OpenBook from 'lucide-svelte/icons/book-open-text';
 	import Briefcase from 'lucide-svelte/icons/briefcase-business';
 	import Clipboard from 'lucide-svelte/icons/clipboard-list';
+	import Handshake from 'lucide-svelte/icons/handshake';
 	import Github from 'lucide-svelte/icons/github';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import SidebarFooter from '$lib/components/ui/sidebar/sidebar-footer.svelte';
@@ -27,6 +28,11 @@
 			title: 'Create Employee',
 			url: '/create/employee',
 			icon: Briefcase
+		},
+		{
+			title: 'Create Guest',
+			url: '/create/guest',
+			icon: Handshake
 		},
 		{
 			title: 'Instructions',

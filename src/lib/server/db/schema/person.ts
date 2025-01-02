@@ -1,4 +1,12 @@
-import { pgTable, serial, integer, text, timestamp, primaryKey } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	serial,
+	integer,
+	text,
+	timestamp,
+	primaryKey,
+	type AnyPgColumn
+} from 'drizzle-orm/pg-core';
 import { building } from './building';
 import { department } from './department';
 import { userTable } from './user';
@@ -11,7 +19,11 @@ export const person = pgTable('person', {
 	lname: text('lname').notNull(),
 	department: text('department')
 		.notNull()
-		.references(() => department.name, { onDelete: 'restrict', onUpdate: 'cascade' })
+		.references(() => department.name, { onDelete: 'restrict', onUpdate: 'cascade' }),
+	guarantorId: integer('guarantor_id').references((): AnyPgColumn => person.id, {
+		onDelete: 'restrict',
+		onUpdate: 'cascade'
+	})
 });
 
 export const personEntry = pgTable(
